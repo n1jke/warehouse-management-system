@@ -1,27 +1,65 @@
-## go_template
-This repository is template for new Go projects.
+## 1. Что мы хотим от системы
+- прием заказов
+- резервирование остатков
+- волновая обработка сборки заказов
+- назначение и выполнение задач сборки
+- асинхронная обработка запросов
 
-## Features
-*   **Linting:** Includes a `.golangci.yml` configuration for `golangci-lint` using T-Academia templat.
-*   **Automated Tasks:** A `Makefile` provides convenient commands for building, testing, formatting, and linting the project.
+## 2. Функциональные требования
+### 2.1 Управление заказами
+- создание заказа с позициями 
+- получение заказа по `id` с текущим статусом, резервами и backorder
+- различные действия в зависимости от состояния заказа(fsm + state)
+   - `new -> reserving -> reserved | partially_reserved  -> in_wave -> packed -> shipped` +-likely
 
-## Prerequisites
-*   `Go`
-*   `golangci-lint`
+### 2.2 Резервирование остатков
+- резервирование выполняется транзакционно
+- при нехватке остатков:
+   - доступная часть резервируется
+   - остаток уходит в backorder
 
-## Getting Started
-1.  **Initialize:** Create a new repository using this one as a template.
-2.  **Clone:** Clone your newly created repository.
-3.  **Update Module Path:** Edit the `go.mod` file (`go mod edit -module your-new-module-name`) and update the module declaration to match your project's path (e.g., `github.com/yourusername/yourprojectname`).
-4.  **Adjust `TARGET`:** In the `Makefile`, change the default value of `TARGET ?=` to match the name of the directory inside `cmd/` that contains your main application (e.g., if your main app is in `cmd/myapp`, change it to `TARGET ?= myapp`). This determines the name of the built binary.
-5.  **Customize:** Adapt the `.golangci.yml` if you need different linters or settings. Add your source code under `internal/` or `pkg/` and your main entry point in `cmd/`.
+### 2.3 Волновое планирование 
+- планирование/распределение/отгрузки будет происходит волнами
+- алгоритм будет поход на gc
+   - если достигли лимита по текащему кол-ву заказов
+   - текущее_кол-во = n * пред_кол-во
+   - раз в t промежуток времени
+- возможно будет что-то связанное еще с балансировкой по эвристике какой-то
 
-## Usage of 
-The included `Makefile` simplifies common tasks:
-*   `make build`: Builds the application binary and places it in `./bin/`.
-*   `make test`: Runs all tests and prints coverage summary.
-*   `make test_race`: Runs all tests with the race detector enabled.
-*   `make html_test`: Generates an HTML coverage report (`coverage.html`) after running tests.
-*   `make fmt`: Formats the entire codebase using `go fmt`.
-*   `make lint`: Runs `golangci-lint` on the project.
-*   `make clean`: Removes built binaries (`./bin/`) and coverage artifacts (`coverage.out`, `coverage.html`).
+### 2.4 Kafka
+- wave planner worker;
+- TTL release worker.
+
+## 3. API (черновой контракт, без OpenAPI)
+### 3.1 Order API
+1. `POST /v1/orders` — создать заказ.
+2. `GET /v1/orders/{id}` — получить заказ.
+3. `POST /v1/orders/{id}/cancel` — отменить заказ.
+
+### 3.2 Wave/Task API
+1. `GET /v1/waves/{id}` — получить волну.
+2. `POST /v1/tasks/{id}/start` — начать задачу сборки.
+3. `POST /v1/tasks/{id}/complete` — завершить задачу сборки.
+
+### 3.3 Shipping API
+1. `POST /v1/orders/{id}/ship` — отгрузить заказ.
+
+### 3.4 Service API
+1. `GET /v1/healthz` — health check.
+
+## 4. Нефункциональные требования
+- общая архитектура -  DDD + Hexagonal/Ports&Adapters
+- работа с бд через транхакции + согласованность
+- at-least-once, retry policy c kafka-
+- структурное логирование + возможно сбор метрик и 'нагрузочное' тестирование для получение персентилей времени ответа
+- контейнеризация 
+
+## 5. Тестирование и критерии готовности
+### 5.1 Тестирование
+- unit, integrations тесты + использование библиотек и построение правильной архитектуры для удобного тестирования
+
+### 5.2 Критерии готовности 
+- соответсвие openapi/proto(не решил что тут будет) спецификации
+- система готова согласно техническому заданию
+- система протестирована и имеет хорошее тестовое покрытие
+- написана записка к курсовому проекту
