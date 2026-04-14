@@ -7,7 +7,7 @@ import (
 	"go.uber.org/fx/fxevent"
 )
 
-// here uber fx
+// here uber fx.
 func NewApp() fx.Option {
 	return fx.Options(
 		fx.Provide(),
