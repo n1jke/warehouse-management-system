@@ -5,13 +5,13 @@
 Этот проект состоит из двух микросервисов, реализующих упрощённую, но демонстративную систему управления складом и взаимодействия с пользователями через корпоративную прослойку.
 
 - **Warehouse Management System (WMS)** — основной сервис, который принимает заказы, резервирует остатки, планирует сборку заказов в волнах и управляет состоянием заказа.
-- **Bot** — сервис-обёртка, который принимает входящие сообщения от пользователей, отправляет уведомления пользователям и служит прокси между клиентом и WMS и его основа это телграмм бот и библиотека "github.com/go-telegram/bot".
+- **Bot / Frontend Messaging Service** — сервис-обёртка, который принимает входящие сообщения от пользователей, отправляет уведомления пользователям и служит прокси между клиентом и WMS.
 
-Проект будет реализовывать типовые архитектурные паттерны, при этом как на уровне сервиса так и на уровне меджсервисного взаимодействия: по архитектуре - DDD, hexagonal architecture; по технологиям - gRPC, Kafka для асинхронных уведомлений, retry/circuit breaker и rate limiting + outbox для отказоустойчивости и postgresql как основное хранилище.
+Проект показывает типовые архитектурные паттерны: DDD, hexagonal architecture, gRPC, Kafka для асинхронных уведомлений, retry/circuit breaker и rate limiting.
 
 ## Цель и границы
 
-Проект не будет пытаться покрыть весь мир e-commerce. Он делает акцент на следующих бизнес-ценностях:
+Проект не пытается покрыть весь мир e-commerce. Он делает акцент на следующих бизнес-ценностях:
 
 - приём и базовая обработка заказов
 - резервирование складских остатков
@@ -30,18 +30,19 @@ WMS отвечает за:
 - обработку частичных резервов и backorder
 - построение и запуск волнового планирования
 - управление состоянием заказа через явные переходы состояний
-- публикацию событий в Kafka при необходимости уведомления клиенту(т.е заказ сформированан)
+- публикацию событий в Kafka при необходимости уведомления клиенту
 
-Это ядро проекта. Внутри WMS сохраняются доменные сущности и реализуются бизнес-правила тут будем стараться домен сделать максимально близко в DDD тюе использовать domain service и сделать богатые доменные модели.
+Это ядро проекта. Внутри WMS сохраняются доменные сущности и реализуются бизнес-правила.
 
 ### 2. Bot / Frontend Messaging Service
 
 Корпоративная прослойка принимает команды от пользователей и отправляет уведомления обратно.
 
-- приём входящего запроса от клиента и отправка уведомлений с использваонием ("github.com/go-telegram/bot".)
-- преобразование пользовательского запроса в gRPC вызовы к WMS делаем прото и генерим через protoc клиаент и сервер
-- прием уведомлений от WMS через Kafka (inbox для Bot Service и outbox для WMS)
-- retry backoff и circuit breaker(как grpc interceptor для mws) для внешних вызовов и доставки сообщений
+- приём входящего запроса от клиента (например, из Telegram)
+- преобразование пользовательского запроса в gRPC вызовы к WMS
+- прием уведомлений от WMS через Kafka (inbox для Bot Service)
+- отправка уведомлений пользователю через Telegram SDK
+- retry и circuit breaker для внешних вызовов и доставки сообщений
 
 Этот сервис делает взаимодействие пользователя со складом удобным и устойчивым.
 
@@ -49,18 +50,29 @@ WMS отвечает за:
 
 ### Order
 
-Заказ — центральная сущность(частично он уже реализован). Он содержит:
+Заказ — центральная сущность. Он содержит:
 
 - уникальный идентификатор
 - список позиций (SKU + количество)
 - текущий статус
 - временные метки создания и изменений
 
+Статусы заказа могут быть простыми и понятными:
+
+- `new`
+- `reserving`
+- `reserved`
+- `partially_reserved`
+- `in_wave`
+- `packed`
+- `shipped`
+- `cancelled`
+
 Переходы статусов должны быть контролируемыми, чтобы в системе сохранялась последовательность работы.
 
 ### OrderItem
 
-Строка заказа описывает отдельную товарную позицию(тоже частино реализован):
+Строка заказа описывает отдельную товарную позицию:
 
 - SKU
 - количество
@@ -85,14 +97,25 @@ WMS отвечает за:
 
 ### User
 
-Пользовательская модель в проекте будет простой: сейчас любой клиент который зарегался в боте может добавлять заказы  и они к нему будут относиться и ему по ним будут уведомление приходить
+Пользовательская модель в проекте будет простой:
+
+- регистрация/аутентификация на базовом уровне
+- хранение ID пользователя и контактной информации
+- возможность назначать уведомления пользователю
+
+На этапе проекта не требуется сложной роли/пермишн-системы, достаточно базового учёта пользователя.
 
 ## Основные юзкейсы
 
 ### 1. Регистрация и управление пользователями
 
+Простой сценарий пользовательской модели, чтобы показать взаимодействие фронтенда с ботом и с WMS.
+
 - пользователь регистрируется в системе
-- система сохраняет chatID и он имя еще введет пускай
+- система сохраняет профиль и контакт для уведомлений
+- пользователь может изменить свои настройки
+
+Мы не делаем здесь сложную авторизацию, оставляем модель средней сложности.
 
 ### 2. CRUD для заказов
 
@@ -210,183 +233,14 @@ message NotificationRequest {
 
 ## Что уже есть в доменной модели
 
-package domain
+В проекте уже частично реализована модель заказа:
 
-import (
- "errors"
- "slices"
- "time"
-)
+- агрегат `Order`
+- базовый набор статусов
+- валидация наличия позиций и количеств
+- контролируемый переход состояний (FSM)
 
-var (
- ErrInvalidOrderItems = errors.New("order must have at least one item")
- ErrIllegalStatusStep = errors.New("illegal status transition")
-)
-
-type OrderStatus string
-
-const (
- StatusNew               OrderStatus = "new"
- StatusReserving         OrderStatus = "reserving"
- StatusReserved          OrderStatus = "reserved"
- StatusPartiallyReserved OrderStatus = "partially_reserved"
- StatusInWave            OrderStatus = "in_wave"
- StatusShipped           OrderStatus = "shipped"
- StatusCancelled         OrderStatus = "cancelled"
-)
-
-type OrderItem struct {
- SKU      string
- Quantity int
-}
-
-type Order struct {
- id        int64
- status    OrderStatus
- items     []OrderItem
- createdAt time.Time
-}
-
-func NewOrder(id int64, items []OrderItem) (*Order, error) {
- if len(items) == 0 {
-  return nil, ErrInvalidOrderItems
- }
-
- for _, item := range items {
-  if item.Quantity <= 0 {
-   return nil, errors.New("item quantity must be positive")
-  }
- }
-
- return &Order{
-  id:        id,
-  status:    StatusNew,
-  items:     items,
-  createdAt: time.Now(),
- }, nil
-}
-
-func (o *Order) ID() int64 {
- return o.id
-}
-
-func (o *Order) Status() OrderStatus {
- return o.status
-}
-
-func (o *Order) Items() []OrderItem {
- return slices.Clone(o.items)
-}
-
-func (o *Order) TransitionTo(next OrderStatus) error {
- allowed := false
-
- // todo: all statuses
- switch o.status {
- case StatusNew:
-  allowed = (next == StatusReserving || next == StatusCancelled)
- case StatusReserving:
-  allowed = (next == StatusReserved || next == StatusPartiallyReserved || next == StatusCancelled)
- case StatusReserved, StatusPartiallyReserved:
-  allowed = (next == StatusInWave || next == StatusCancelled)
- }
-
- if !allowed {
-  return ErrIllegalStatusStep
- }
-
- o.status = next
-
- return nil
-}
-
-package domain
-
-type ReservationResult struct {
- ReservedQty  int
- BackorderQty int
-}
-
-type Stock struct {
- sku           string
- totalQuantity int
- reservedQty   int
-}
-
-func NewStock(sku string, total int) *Stock {
- return &Stock{
-  sku:           sku,
-  totalQuantity: total,
- }
-}
-
-func (s *Stock) Reserve(requestedQty int) ReservationResult {
- available := max(s.totalQuantity-s.reservedQty, 0)
- toReserve := min(requestedQty, available)
-
- s.reservedQty += toReserve
-
- return ReservationResult{
-  ReservedQty:  toReserve,
-  BackorderQty: requestedQty - toReserve,
- }
-}
-
-func (s *Stock) Release(qty int) {
- s.reservedQty -= qty
- if s.reservedQty < 0 {
-  s.reservedQty = 0
- }
-}
-
-package domain
-
-import "errors"
-
-type WaveStatus string
-
-const (
- WaveStatusOpen      WaveStatus = "open"       // Сбор заказов
- WaveStatusInProcess WaveStatus = "in_process" // Задачи созданы
- WaveStatusCompleted WaveStatus = "completed"
-)
-
-type Wave struct {
- id        int64
- orders    []int64
- status    WaveStatus
- maxOrders int
-}
-
-func NewWave(id int64, maxOrders int) *Wave {
- return &Wave{
-  id:        id,
-  status:    WaveStatusOpen,
-  maxOrders: maxOrders,
-  orders:    make([]int64, 0),
- }
-}
-
-func (w *Wave) AddOrder(orderID int64) error {
- if w.status != WaveStatusOpen {
-  return errors.New("cannot add orders to non-open wave")
- }
-
- if len(w.orders) >= w.maxOrders {
-  return errors.New("wave is full")
- }
-
- w.orders = append(w.orders, orderID)
-
- return nil
-}
-
-func (w *Wave) Orders() []int64 {
- cp := make([]int64, len(w.orders))
- copy(cp, w.orders)
-
- return cp
-}
+Эта часть должна остаться и послужить основой для следующих расширений: резервирование, backorder, формирование волн и работа с пользователем.
 
 ## Предложенная логика планирования
 
@@ -395,7 +249,7 @@ func (w *Wave) Orders() []int64 {
 - заказы проходят стадию резервирования, затем переходят в состояние `reserved` или `partially_reserved`;
 - когда накопилось достаточное число заказов или прошло заданное время, система формирует волну;
 - в волну попадают заказы, которые готовы к сборке;
-- волна создаёт задачи для бригад/роботов/сборщиков(нам без разницы улоснво это);
+- волна создаёт задачи для бригад/роботов/сборщиков;
 - после выполнения задач статус заказа переводится в `packed` и затем `shipped`.
 
 Юзкейсы планирования:
@@ -405,7 +259,6 @@ func (w *Wave) Orders() []int64 {
 - эскалация при наличии заказов с высоким приоритетом;
 - просмотр статуса волны и связанных задач;
 - завершение волны и перевод заказов в следующую стадию.
-- в общем алгоритм отчасти похож на алгоритм garbage collector golang
 
 ## Итог
 
@@ -414,7 +267,7 @@ func (w *Wave) Orders() []int64 {
 - разделение ответственности между сервисами
 - использование gRPC для бизнес-интерфейсов
 - асинхронное уведомление через Kafka
-- паттерны надежности и отказоустойчивости: retry, circuit breaker, rate limiting
-- понятная доменная модель заказа максимально приближенная в DDD идиоматичной модели
+- паттерны надежности: retry, circuit breaker, rate limiting
+- простая, понятная доменная модель заказа
 
-Такой подход позволит реализовать не «супербольшой» сервис, но достаточно интересное и структурированное приложение для курсового проекта.
+Такой подход позволит реализовать не «супербольшой» сервис, но достаточно интересное и структурированное приложение для курсового проекта

@@ -27,6 +27,12 @@ func StockFromExist(sku string, total int, reservations []Reservation) *Stock {
 	}
 }
 
+func (s *Stock) SKU() string { return s.sku }
+
+func (s *Stock) TotalQuantity() int { return s.totalQuantity }
+
+func (s *Stock) Reservations() []Reservation { return slices.Clone(s.reservations) }
+
 func (s *Stock) Available() int {
 	reserved := 0
 	for _, r := range s.reservations {
@@ -41,6 +47,7 @@ func (s *Stock) Reserve(orderID uuid.UUID, requestedQty int) Reservation {
 
 	r := Reservation{
 		OrderID:      orderID,
+		SKU:          s.sku,
 		ReservedQty:  toReserve,
 		BackorderQty: requestedQty - toReserve,
 	}

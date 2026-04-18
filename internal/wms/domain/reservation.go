@@ -4,6 +4,7 @@ import "github.com/google/uuid"
 
 type Reservation struct {
 	OrderID      uuid.UUID
+	SKU          string
 	ReservedQty  int
 	BackorderQty int
 }
