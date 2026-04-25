@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package warehouse.v1;
 
-option go_package = "github.com/github.com/n1jke/warehouse-management-system/internal/infrastructure/gen/wms/v1;wms";
+option go_package = "github.com/github.com/n1jke/warehouse-management-system/internal/api/proto/wms/v1;wms";
 
 import "google/protobuf/timestamp.proto";
 

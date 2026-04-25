@@ -960,7 +960,7 @@ const file_warehouse_proto_rawDesc = "" +
 	"ListOrders\x12\x1f.warehouse.v1.ListOrdersRequest\x1a .warehouse.v1.ListOrdersResponse2\xa0\x01\n" +
 	"\vWaveService\x12C\n" +
 	"\aGetWave\x12\x1c.warehouse.v1.GetWaveRequest\x1a\x1a.warehouse.v1.WaveResponse\x12L\n" +
-	"\tListWaves\x12\x1e.warehouse.v1.ListWavesRequest\x1a\x1f.warehouse.v1.ListWavesResponseB`Z^github.com/github.com/n1jke/warehouse-management-system/internal/infrastructure/gen/wms/v1;wmsb\x06proto3"
+	"\tListWaves\x12\x1e.warehouse.v1.ListWavesRequest\x1a\x1f.warehouse.v1.ListWavesResponseBWZUgithub.com/github.com/n1jke/warehouse-management-system/internal/api/proto/wms/v1;wmsb\x06proto3"
 
 var (
 	file_warehouse_proto_rawDescOnce sync.Once
