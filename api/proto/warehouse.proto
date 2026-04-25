@@ -49,27 +49,27 @@ message CreateOrderRequest {
 }
 
 message GetOrderRequest {
-  int64 order_id = 1;
+  UUID order_id = 1;
 }
 
 message UpdateOrderRequest {
-  int64             order_id = 1;
+  UUID             order_id = 1;
   repeated OrderItem items   = 2;
 }
 
 message DeleteOrderRequest {
-  int64 order_id = 1;
+  UUID order_id = 1;
 }
 
 message DeleteOrderResponse {
-  int64 order_id = 1;
+  UUID order_id = 1;
 }
 
 message ListOrdersRequest {
   int64  user_id    = 1;   
   string status     = 2;     
   string page_token = 4;
-  // todo: int32  page_size  = 3; for pagination or streaming rpc?!
+  int32  page_size  = 3; 
 }
 
 message ListOrdersResponse {
@@ -78,7 +78,7 @@ message ListOrdersResponse {
 }
 
 message OrderResponse {
-  int64                    order_id   = 1;
+  UUID                    order_id   = 1;
   int64                    user_id    = 2;
   string                   status     = 3;
   repeated OrderItem       items      = 4;
@@ -100,7 +100,7 @@ message GetWaveRequest {
 message WaveResponse {
   int64             wave_id    = 1;
   string            status     = 2;
-  repeated int64    order_ids  = 3;
+  repeated UUID    order_ids  = 3;
   google.protobuf.Timestamp created_at = 4;
 }
 
@@ -113,4 +113,10 @@ message ListWavesRequest {
 message ListWavesResponse {
   repeated WaveResponse waves          = 1;
   string                next_page_token = 2;
+}
+
+// uuid.uuid
+
+message UUID {
+  string value = 1;
 }

@@ -284,7 +284,7 @@ func (x *CreateOrderRequest) GetItems() []*OrderItem {
 
 type GetOrderRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	OrderId       int64                  `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
+	OrderId       *UUID                  `protobuf:"bytes,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -319,16 +319,16 @@ func (*GetOrderRequest) Descriptor() ([]byte, []int) {
 	return file_warehouse_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *GetOrderRequest) GetOrderId() int64 {
+func (x *GetOrderRequest) GetOrderId() *UUID {
 	if x != nil {
 		return x.OrderId
 	}
-	return 0
+	return nil
 }
 
 type UpdateOrderRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	OrderId       int64                  `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
+	OrderId       *UUID                  `protobuf:"bytes,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
 	Items         []*OrderItem           `protobuf:"bytes,2,rep,name=items,proto3" json:"items,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -364,11 +364,11 @@ func (*UpdateOrderRequest) Descriptor() ([]byte, []int) {
 	return file_warehouse_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *UpdateOrderRequest) GetOrderId() int64 {
+func (x *UpdateOrderRequest) GetOrderId() *UUID {
 	if x != nil {
 		return x.OrderId
 	}
-	return 0
+	return nil
 }
 
 func (x *UpdateOrderRequest) GetItems() []*OrderItem {
@@ -380,7 +380,7 @@ func (x *UpdateOrderRequest) GetItems() []*OrderItem {
 
 type DeleteOrderRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	OrderId       int64                  `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
+	OrderId       *UUID                  `protobuf:"bytes,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -415,16 +415,16 @@ func (*DeleteOrderRequest) Descriptor() ([]byte, []int) {
 	return file_warehouse_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *DeleteOrderRequest) GetOrderId() int64 {
+func (x *DeleteOrderRequest) GetOrderId() *UUID {
 	if x != nil {
 		return x.OrderId
 	}
-	return 0
+	return nil
 }
 
 type DeleteOrderResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	OrderId       int64                  `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
+	OrderId       *UUID                  `protobuf:"bytes,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -459,18 +459,19 @@ func (*DeleteOrderResponse) Descriptor() ([]byte, []int) {
 	return file_warehouse_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *DeleteOrderResponse) GetOrderId() int64 {
+func (x *DeleteOrderResponse) GetOrderId() *UUID {
 	if x != nil {
 		return x.OrderId
 	}
-	return 0
+	return nil
 }
 
 type ListOrdersRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	Status        string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
-	PageToken     string                 `protobuf:"bytes,4,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"` // todo: int32  page_size  = 3; for pagination or streaming rpc?!
+	PageToken     string                 `protobuf:"bytes,4,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	PageSize      int32                  `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -524,6 +525,13 @@ func (x *ListOrdersRequest) GetPageToken() string {
 		return x.PageToken
 	}
 	return ""
+}
+
+func (x *ListOrdersRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
 }
 
 type ListOrdersResponse struct {
@@ -580,7 +588,7 @@ func (x *ListOrdersResponse) GetNextPageToken() string {
 
 type OrderResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	OrderId       int64                  `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
+	OrderId       *UUID                  `protobuf:"bytes,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
 	UserId        int64                  `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	Status        string                 `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
 	Items         []*OrderItem           `protobuf:"bytes,4,rep,name=items,proto3" json:"items,omitempty"`
@@ -620,11 +628,11 @@ func (*OrderResponse) Descriptor() ([]byte, []int) {
 	return file_warehouse_proto_rawDescGZIP(), []int{11}
 }
 
-func (x *OrderResponse) GetOrderId() int64 {
+func (x *OrderResponse) GetOrderId() *UUID {
 	if x != nil {
 		return x.OrderId
 	}
-	return 0
+	return nil
 }
 
 func (x *OrderResponse) GetUserId() int64 {
@@ -710,7 +718,7 @@ type WaveResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	WaveId        int64                  `protobuf:"varint,1,opt,name=wave_id,json=waveId,proto3" json:"wave_id,omitempty"`
 	Status        string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
-	OrderIds      []int64                `protobuf:"varint,3,rep,packed,name=order_ids,json=orderIds,proto3" json:"order_ids,omitempty"`
+	OrderIds      []*UUID                `protobuf:"bytes,3,rep,name=order_ids,json=orderIds,proto3" json:"order_ids,omitempty"`
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -760,7 +768,7 @@ func (x *WaveResponse) GetStatus() string {
 	return ""
 }
 
-func (x *WaveResponse) GetOrderIds() []int64 {
+func (x *WaveResponse) GetOrderIds() []*UUID {
 	if x != nil {
 		return x.OrderIds
 	}
@@ -886,6 +894,50 @@ func (x *ListWavesResponse) GetNextPageToken() string {
 	return ""
 }
 
+type UUID struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Value         string                 `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UUID) Reset() {
+	*x = UUID{}
+	mi := &file_warehouse_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UUID) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UUID) ProtoMessage() {}
+
+func (x *UUID) ProtoReflect() protoreflect.Message {
+	mi := &file_warehouse_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UUID.ProtoReflect.Descriptor instead.
+func (*UUID) Descriptor() ([]byte, []int) {
+	return file_warehouse_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *UUID) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
 var File_warehouse_proto protoreflect.FileDescriptor
 
 const file_warehouse_proto_rawDesc = "" +
@@ -905,26 +957,27 @@ const file_warehouse_proto_rawDesc = "" +
 	"\bquantity\x18\x02 \x01(\x05R\bquantity\"\\\n" +
 	"\x12CreateOrderRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12-\n" +
-	"\x05items\x18\x02 \x03(\v2\x17.warehouse.v1.OrderItemR\x05items\",\n" +
-	"\x0fGetOrderRequest\x12\x19\n" +
-	"\border_id\x18\x01 \x01(\x03R\aorderId\"^\n" +
-	"\x12UpdateOrderRequest\x12\x19\n" +
-	"\border_id\x18\x01 \x01(\x03R\aorderId\x12-\n" +
-	"\x05items\x18\x02 \x03(\v2\x17.warehouse.v1.OrderItemR\x05items\"/\n" +
-	"\x12DeleteOrderRequest\x12\x19\n" +
-	"\border_id\x18\x01 \x01(\x03R\aorderId\"0\n" +
-	"\x13DeleteOrderResponse\x12\x19\n" +
-	"\border_id\x18\x01 \x01(\x03R\aorderId\"c\n" +
+	"\x05items\x18\x02 \x03(\v2\x17.warehouse.v1.OrderItemR\x05items\"@\n" +
+	"\x0fGetOrderRequest\x12-\n" +
+	"\border_id\x18\x01 \x01(\v2\x12.warehouse.v1.UUIDR\aorderId\"r\n" +
+	"\x12UpdateOrderRequest\x12-\n" +
+	"\border_id\x18\x01 \x01(\v2\x12.warehouse.v1.UUIDR\aorderId\x12-\n" +
+	"\x05items\x18\x02 \x03(\v2\x17.warehouse.v1.OrderItemR\x05items\"C\n" +
+	"\x12DeleteOrderRequest\x12-\n" +
+	"\border_id\x18\x01 \x01(\v2\x12.warehouse.v1.UUIDR\aorderId\"D\n" +
+	"\x13DeleteOrderResponse\x12-\n" +
+	"\border_id\x18\x01 \x01(\v2\x12.warehouse.v1.UUIDR\aorderId\"\x80\x01\n" +
 	"\x11ListOrdersRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\x12\x1d\n" +
 	"\n" +
-	"page_token\x18\x04 \x01(\tR\tpageToken\"q\n" +
+	"page_token\x18\x04 \x01(\tR\tpageToken\x12\x1b\n" +
+	"\tpage_size\x18\x03 \x01(\x05R\bpageSize\"q\n" +
 	"\x12ListOrdersResponse\x123\n" +
 	"\x06orders\x18\x01 \x03(\v2\x1b.warehouse.v1.OrderResponseR\x06orders\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x80\x02\n" +
-	"\rOrderResponse\x12\x19\n" +
-	"\border_id\x18\x01 \x01(\x03R\aorderId\x12\x17\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x94\x02\n" +
+	"\rOrderResponse\x12-\n" +
+	"\border_id\x18\x01 \x01(\v2\x12.warehouse.v1.UUIDR\aorderId\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\x03R\x06userId\x12\x16\n" +
 	"\x06status\x18\x03 \x01(\tR\x06status\x12-\n" +
 	"\x05items\x18\x04 \x03(\v2\x17.warehouse.v1.OrderItemR\x05items\x129\n" +
@@ -933,11 +986,11 @@ const file_warehouse_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\")\n" +
 	"\x0eGetWaveRequest\x12\x17\n" +
-	"\awave_id\x18\x01 \x01(\x03R\x06waveId\"\x97\x01\n" +
+	"\awave_id\x18\x01 \x01(\x03R\x06waveId\"\xab\x01\n" +
 	"\fWaveResponse\x12\x17\n" +
 	"\awave_id\x18\x01 \x01(\x03R\x06waveId\x12\x16\n" +
-	"\x06status\x18\x02 \x01(\tR\x06status\x12\x1b\n" +
-	"\torder_ids\x18\x03 \x03(\x03R\borderIds\x129\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status\x12/\n" +
+	"\torder_ids\x18\x03 \x03(\v2\x12.warehouse.v1.UUIDR\borderIds\x129\n" +
 	"\n" +
 	"created_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"f\n" +
 	"\x10ListWavesRequest\x12\x16\n" +
@@ -947,7 +1000,9 @@ const file_warehouse_proto_rawDesc = "" +
 	"page_token\x18\x03 \x01(\tR\tpageToken\"m\n" +
 	"\x11ListWavesResponse\x120\n" +
 	"\x05waves\x18\x01 \x03(\v2\x1a.warehouse.v1.WaveResponseR\x05waves\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2\xa1\x01\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x1c\n" +
+	"\x04UUID\x12\x14\n" +
+	"\x05value\x18\x01 \x01(\tR\x05value2\xa1\x01\n" +
 	"\vUserService\x12M\n" +
 	"\fRegisterUser\x12!.warehouse.v1.RegisterUserRequest\x1a\x1a.warehouse.v1.UserResponse\x12C\n" +
 	"\aGetUser\x12\x1c.warehouse.v1.GetUserRequest\x1a\x1a.warehouse.v1.UserResponse2\x97\x03\n" +
@@ -974,7 +1029,7 @@ func file_warehouse_proto_rawDescGZIP() []byte {
 	return file_warehouse_proto_rawDescData
 }
 
-var file_warehouse_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_warehouse_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_warehouse_proto_goTypes = []any{
 	(*RegisterUserRequest)(nil),   // 0: warehouse.v1.RegisterUserRequest
 	(*GetUserRequest)(nil),        // 1: warehouse.v1.GetUserRequest
@@ -992,40 +1047,47 @@ var file_warehouse_proto_goTypes = []any{
 	(*WaveResponse)(nil),          // 13: warehouse.v1.WaveResponse
 	(*ListWavesRequest)(nil),      // 14: warehouse.v1.ListWavesRequest
 	(*ListWavesResponse)(nil),     // 15: warehouse.v1.ListWavesResponse
-	(*timestamppb.Timestamp)(nil), // 16: google.protobuf.Timestamp
+	(*UUID)(nil),                  // 16: warehouse.v1.UUID
+	(*timestamppb.Timestamp)(nil), // 17: google.protobuf.Timestamp
 }
 var file_warehouse_proto_depIdxs = []int32{
 	3,  // 0: warehouse.v1.CreateOrderRequest.items:type_name -> warehouse.v1.OrderItem
-	3,  // 1: warehouse.v1.UpdateOrderRequest.items:type_name -> warehouse.v1.OrderItem
-	11, // 2: warehouse.v1.ListOrdersResponse.orders:type_name -> warehouse.v1.OrderResponse
-	3,  // 3: warehouse.v1.OrderResponse.items:type_name -> warehouse.v1.OrderItem
-	16, // 4: warehouse.v1.OrderResponse.created_at:type_name -> google.protobuf.Timestamp
-	16, // 5: warehouse.v1.OrderResponse.updated_at:type_name -> google.protobuf.Timestamp
-	16, // 6: warehouse.v1.WaveResponse.created_at:type_name -> google.protobuf.Timestamp
-	13, // 7: warehouse.v1.ListWavesResponse.waves:type_name -> warehouse.v1.WaveResponse
-	0,  // 8: warehouse.v1.UserService.RegisterUser:input_type -> warehouse.v1.RegisterUserRequest
-	1,  // 9: warehouse.v1.UserService.GetUser:input_type -> warehouse.v1.GetUserRequest
-	4,  // 10: warehouse.v1.OrderService.CreateOrder:input_type -> warehouse.v1.CreateOrderRequest
-	5,  // 11: warehouse.v1.OrderService.GetOrder:input_type -> warehouse.v1.GetOrderRequest
-	6,  // 12: warehouse.v1.OrderService.UpdateOrder:input_type -> warehouse.v1.UpdateOrderRequest
-	7,  // 13: warehouse.v1.OrderService.DeleteOrder:input_type -> warehouse.v1.DeleteOrderRequest
-	9,  // 14: warehouse.v1.OrderService.ListOrders:input_type -> warehouse.v1.ListOrdersRequest
-	12, // 15: warehouse.v1.WaveService.GetWave:input_type -> warehouse.v1.GetWaveRequest
-	14, // 16: warehouse.v1.WaveService.ListWaves:input_type -> warehouse.v1.ListWavesRequest
-	2,  // 17: warehouse.v1.UserService.RegisterUser:output_type -> warehouse.v1.UserResponse
-	2,  // 18: warehouse.v1.UserService.GetUser:output_type -> warehouse.v1.UserResponse
-	11, // 19: warehouse.v1.OrderService.CreateOrder:output_type -> warehouse.v1.OrderResponse
-	11, // 20: warehouse.v1.OrderService.GetOrder:output_type -> warehouse.v1.OrderResponse
-	11, // 21: warehouse.v1.OrderService.UpdateOrder:output_type -> warehouse.v1.OrderResponse
-	8,  // 22: warehouse.v1.OrderService.DeleteOrder:output_type -> warehouse.v1.DeleteOrderResponse
-	10, // 23: warehouse.v1.OrderService.ListOrders:output_type -> warehouse.v1.ListOrdersResponse
-	13, // 24: warehouse.v1.WaveService.GetWave:output_type -> warehouse.v1.WaveResponse
-	15, // 25: warehouse.v1.WaveService.ListWaves:output_type -> warehouse.v1.ListWavesResponse
-	17, // [17:26] is the sub-list for method output_type
-	8,  // [8:17] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	16, // 1: warehouse.v1.GetOrderRequest.order_id:type_name -> warehouse.v1.UUID
+	16, // 2: warehouse.v1.UpdateOrderRequest.order_id:type_name -> warehouse.v1.UUID
+	3,  // 3: warehouse.v1.UpdateOrderRequest.items:type_name -> warehouse.v1.OrderItem
+	16, // 4: warehouse.v1.DeleteOrderRequest.order_id:type_name -> warehouse.v1.UUID
+	16, // 5: warehouse.v1.DeleteOrderResponse.order_id:type_name -> warehouse.v1.UUID
+	11, // 6: warehouse.v1.ListOrdersResponse.orders:type_name -> warehouse.v1.OrderResponse
+	16, // 7: warehouse.v1.OrderResponse.order_id:type_name -> warehouse.v1.UUID
+	3,  // 8: warehouse.v1.OrderResponse.items:type_name -> warehouse.v1.OrderItem
+	17, // 9: warehouse.v1.OrderResponse.created_at:type_name -> google.protobuf.Timestamp
+	17, // 10: warehouse.v1.OrderResponse.updated_at:type_name -> google.protobuf.Timestamp
+	16, // 11: warehouse.v1.WaveResponse.order_ids:type_name -> warehouse.v1.UUID
+	17, // 12: warehouse.v1.WaveResponse.created_at:type_name -> google.protobuf.Timestamp
+	13, // 13: warehouse.v1.ListWavesResponse.waves:type_name -> warehouse.v1.WaveResponse
+	0,  // 14: warehouse.v1.UserService.RegisterUser:input_type -> warehouse.v1.RegisterUserRequest
+	1,  // 15: warehouse.v1.UserService.GetUser:input_type -> warehouse.v1.GetUserRequest
+	4,  // 16: warehouse.v1.OrderService.CreateOrder:input_type -> warehouse.v1.CreateOrderRequest
+	5,  // 17: warehouse.v1.OrderService.GetOrder:input_type -> warehouse.v1.GetOrderRequest
+	6,  // 18: warehouse.v1.OrderService.UpdateOrder:input_type -> warehouse.v1.UpdateOrderRequest
+	7,  // 19: warehouse.v1.OrderService.DeleteOrder:input_type -> warehouse.v1.DeleteOrderRequest
+	9,  // 20: warehouse.v1.OrderService.ListOrders:input_type -> warehouse.v1.ListOrdersRequest
+	12, // 21: warehouse.v1.WaveService.GetWave:input_type -> warehouse.v1.GetWaveRequest
+	14, // 22: warehouse.v1.WaveService.ListWaves:input_type -> warehouse.v1.ListWavesRequest
+	2,  // 23: warehouse.v1.UserService.RegisterUser:output_type -> warehouse.v1.UserResponse
+	2,  // 24: warehouse.v1.UserService.GetUser:output_type -> warehouse.v1.UserResponse
+	11, // 25: warehouse.v1.OrderService.CreateOrder:output_type -> warehouse.v1.OrderResponse
+	11, // 26: warehouse.v1.OrderService.GetOrder:output_type -> warehouse.v1.OrderResponse
+	11, // 27: warehouse.v1.OrderService.UpdateOrder:output_type -> warehouse.v1.OrderResponse
+	8,  // 28: warehouse.v1.OrderService.DeleteOrder:output_type -> warehouse.v1.DeleteOrderResponse
+	10, // 29: warehouse.v1.OrderService.ListOrders:output_type -> warehouse.v1.ListOrdersResponse
+	13, // 30: warehouse.v1.WaveService.GetWave:output_type -> warehouse.v1.WaveResponse
+	15, // 31: warehouse.v1.WaveService.ListWaves:output_type -> warehouse.v1.ListWavesResponse
+	23, // [23:32] is the sub-list for method output_type
+	14, // [14:23] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_warehouse_proto_init() }
@@ -1039,7 +1101,7 @@ func file_warehouse_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_warehouse_proto_rawDesc), len(file_warehouse_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   16,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   3,
 		},
