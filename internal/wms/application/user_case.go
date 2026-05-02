@@ -30,10 +30,12 @@ func (s *UserService) RegisterUser(ctx context.Context, chatID int64) error {
 		}
 
 		s.logger.Error("add user", slog.Int64("chatID", chatID), slog.Any("err", err))
+
 		return fmt.Errorf("add user: %w", err)
 	}
 
 	s.logger.Info("user register successfully", slog.Int64("chatID", chatID))
+
 	return nil
 }
 
@@ -45,6 +47,7 @@ func (s *UserService) GetUser(ctx context.Context, chatID int64) (*domain.User, 
 		}
 
 		s.logger.Error("get user by chatID", slog.Int64("chatID", chatID), slog.Any("err", err))
+
 		return nil, fmt.Errorf("get user by chatID: %w", err)
 	}
 

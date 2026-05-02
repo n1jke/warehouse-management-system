@@ -4,22 +4,26 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+
 	"github.com/n1jke/warehouse-management-system/internal/wms/domain"
 )
 
+//go:generate mockgen -source interfaces.go -destination=mocks/mocks.go -package=mocks
 type Transactor interface {
 	WithTransaction(ctx context.Context, fn func(ctx context.Context) error) error
 }
 
 type EventPublisher interface {
-	Publish(ctx context.Context, event OrderEvent) error
+	Publish(ctx context.Context, event *OrderEvent) error
 }
 
 type OrderRepository interface {
 	Add(ctx context.Context, order *domain.Order) error
 	GetByID(ctx context.Context, id uuid.UUID) (*domain.Order, error)
-	GetByUserID(ctx context.Context, userID int64, limit, offset int) ([]*domain.Order, error)
-	GetByStatus(ctx context.Context, status domain.OrderStatus, limit, offset int) ([]*domain.Order, error)
+	GetByUserID(ctx context.Context, userID int64, limit int, cursor OrderCursor) ([]*domain.Order, error)
+	GetByStatusAndUserID(ctx context.Context, userID int64, status domain.OrderStatus, limit int,
+		cursor OrderCursor) ([]*domain.Order, error)
+	GetByStatus(ctx context.Context, status domain.OrderStatus, limit int, cursor OrderCursor) ([]*domain.Order, error)
 	Update(ctx context.Context, order *domain.Order) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }

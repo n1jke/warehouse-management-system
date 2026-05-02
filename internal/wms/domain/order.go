@@ -103,4 +103,9 @@ func (o *Order) TransitionTo(next OrderStatus) error {
 
 func (o *Order) CanUpdate() bool { return o.status == StatusNew || o.status == StatusReserving }
 
+func (o *Order) UpdateItems(items []OrderItem) {
+	o.items = items
+	o.updatedAt = time.Now()
+}
+
 func (o *Order) CanCancel() bool { return o.status != StatusShipped && o.status != StatusCancelled }
