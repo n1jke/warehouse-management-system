@@ -119,4 +119,5 @@ message ListWavesResponse {
 
 message UUID {
   string value = 1;
+  string order_id = 1 [(buf.validate.field).string.uuid = true];  // todo
 }
