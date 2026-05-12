@@ -9,12 +9,12 @@ import (
 	"github.com/google/uuid"
 )
 
-type OrderCursor struct {
+type Cursor struct {
 	LastCreatedAt time.Time
 	LastID        uuid.UUID
 }
 
-func (c OrderCursor) IsEmpty() bool {
+func (c Cursor) IsEmpty() bool {
 	return c.LastID == uuid.Nil
 }
 
@@ -23,7 +23,7 @@ type cursorPayload struct {
 	LastID        string    `json:"id"`
 }
 
-func encodeCursor(c OrderCursor) (string, error) {
+func encodeCursor(c Cursor) (string, error) {
 	b, err := json.Marshal(cursorPayload{
 		LastCreatedAt: c.LastCreatedAt,
 		LastID:        c.LastID.String(),
@@ -35,27 +35,27 @@ func encodeCursor(c OrderCursor) (string, error) {
 	return base64.StdEncoding.EncodeToString(b), nil
 }
 
-func decodeCursor(token string) (OrderCursor, error) {
+func decodeCursor(token string) (Cursor, error) {
 	if token == "" {
-		return OrderCursor{}, nil
+		return Cursor{}, nil
 	}
 
 	b, err := base64.StdEncoding.DecodeString(token)
 	if err != nil {
-		return OrderCursor{}, ErrInvalidPageToken
+		return Cursor{}, ErrInvalidPageToken
 	}
 
 	var p cursorPayload
 	if err = json.Unmarshal(b, &p); err != nil {
-		return OrderCursor{}, ErrInvalidPageToken
+		return Cursor{}, ErrInvalidPageToken
 	}
 
 	id, err := uuid.Parse(p.LastID)
 	if err != nil {
-		return OrderCursor{}, ErrInvalidPageToken
+		return Cursor{}, ErrInvalidPageToken
 	}
 
-	return OrderCursor{
+	return Cursor{
 		LastCreatedAt: p.LastCreatedAt,
 		LastID:        id,
 	}, nil

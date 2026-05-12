@@ -163,7 +163,7 @@ func (mr *MockOrderRepositoryMockRecorder) GetByID(ctx, id any) *gomock.Call {
 }
 
 // GetByStatus mocks base method.
-func (m *MockOrderRepository) GetByStatus(ctx context.Context, status domain.OrderStatus, limit int, cursor application.OrderCursor) ([]*domain.Order, error) {
+func (m *MockOrderRepository) GetByStatus(ctx context.Context, status domain.OrderStatus, limit int, cursor application.Cursor) ([]*domain.Order, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByStatus", ctx, status, limit, cursor)
 	ret0, _ := ret[0].([]*domain.Order)
@@ -178,7 +178,7 @@ func (mr *MockOrderRepositoryMockRecorder) GetByStatus(ctx, status, limit, curso
 }
 
 // GetByStatusAndUserID mocks base method.
-func (m *MockOrderRepository) GetByStatusAndUserID(ctx context.Context, userID int64, status domain.OrderStatus, limit int, cursor application.OrderCursor) ([]*domain.Order, error) {
+func (m *MockOrderRepository) GetByStatusAndUserID(ctx context.Context, userID int64, status domain.OrderStatus, limit int, cursor application.Cursor) ([]*domain.Order, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByStatusAndUserID", ctx, userID, status, limit, cursor)
 	ret0, _ := ret[0].([]*domain.Order)
@@ -193,7 +193,7 @@ func (mr *MockOrderRepositoryMockRecorder) GetByStatusAndUserID(ctx, userID, sta
 }
 
 // GetByUserID mocks base method.
-func (m *MockOrderRepository) GetByUserID(ctx context.Context, userID int64, limit int, cursor application.OrderCursor) ([]*domain.Order, error) {
+func (m *MockOrderRepository) GetByUserID(ctx context.Context, userID int64, limit int, cursor application.Cursor) ([]*domain.Order, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByUserID", ctx, userID, limit, cursor)
 	ret0, _ := ret[0].([]*domain.Order)
@@ -219,6 +219,20 @@ func (m *MockOrderRepository) Update(ctx context.Context, order *domain.Order) e
 func (mr *MockOrderRepositoryMockRecorder) Update(ctx, order any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockOrderRepository)(nil).Update), ctx, order)
+}
+
+// UpdateStatusBatch mocks base method.
+func (m *MockOrderRepository) UpdateStatusBatch(ctx context.Context, orders []uuid.UUID, status domain.OrderStatus) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateStatusBatch", ctx, orders, status)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateStatusBatch indicates an expected call of UpdateStatusBatch.
+func (mr *MockOrderRepositoryMockRecorder) UpdateStatusBatch(ctx, orders, status any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStatusBatch", reflect.TypeOf((*MockOrderRepository)(nil).UpdateStatusBatch), ctx, orders, status)
 }
 
 // MockStockRepository is a mock of StockRepository interface.
@@ -328,18 +342,18 @@ func (mr *MockWaveRepositoryMockRecorder) GetByID(ctx, id any) *gomock.Call {
 }
 
 // GetByStatus mocks base method.
-func (m *MockWaveRepository) GetByStatus(ctx context.Context, status domain.WaveStatus, limit, offset int) ([]*domain.Wave, error) {
+func (m *MockWaveRepository) GetByStatus(ctx context.Context, status domain.WaveStatus, limit int, cursor application.Cursor) ([]*domain.Wave, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByStatus", ctx, status, limit, offset)
+	ret := m.ctrl.Call(m, "GetByStatus", ctx, status, limit, cursor)
 	ret0, _ := ret[0].([]*domain.Wave)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetByStatus indicates an expected call of GetByStatus.
-func (mr *MockWaveRepositoryMockRecorder) GetByStatus(ctx, status, limit, offset any) *gomock.Call {
+func (mr *MockWaveRepositoryMockRecorder) GetByStatus(ctx, status, limit, cursor any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByStatus", reflect.TypeOf((*MockWaveRepository)(nil).GetByStatus), ctx, status, limit, offset)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByStatus", reflect.TypeOf((*MockWaveRepository)(nil).GetByStatus), ctx, status, limit, cursor)
 }
 
 // Update mocks base method.

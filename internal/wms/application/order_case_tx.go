@@ -105,7 +105,7 @@ func (s *OrderService) deleteOrderTx(ctx context.Context, orderID uuid.UUID) err
 	return nil
 }
 
-func (s *OrderService) fetchOrders(ctx context.Context, input ListOrdersInput, limit int, cursor OrderCursor) ([]*domain.Order, error) {
+func (s *OrderService) fetchOrders(ctx context.Context, input ListOrdersInput, limit int, cursor Cursor) ([]*domain.Order, error) {
 	if input.Status != nil {
 		status := domain.OrderStatus(*input.Status)
 		return s.orderRepo.GetByStatus(ctx, status, limit, cursor)

@@ -5,6 +5,7 @@ import "errors"
 var (
 	ErrChatNotFound           = errors.New("chat not found")
 	ErrOrderNotFound          = errors.New("order not found")
+	ErrWaveNotFound           = errors.New("wave not found")
 	ErrAlreadyExists          = errors.New("already exists")
 	ErrOrderCannotBeUpdated   = errors.New("order cannot be updated in current status")
 	ErrOrderCannotBeCancelled = errors.New("order cannot be cancelled in current status")

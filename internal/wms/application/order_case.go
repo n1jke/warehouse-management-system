@@ -110,14 +110,14 @@ func (s *OrderService) ListOrders(ctx context.Context, input ListOrdersInput) (L
 		return ListOrdersOutput{}, fmt.Errorf("list orders: %w", err)
 	}
 
-	var nextPageToken string
+	nextPageToken := ""
 
 	if len(orders) == limit+1 {
 		orders = orders[:limit]
 
 		last := orders[len(orders)-1]
 
-		token, err := encodeCursor(OrderCursor{
+		token, err := encodeCursor(Cursor{
 			LastCreatedAt: last.CreatedAt(),
 			LastID:        last.ID(),
 		})
