@@ -2,15 +2,14 @@ syntax = "proto3";
 
 package warehouse.v1;
 
-option go_package = "github.com/github.com/n1jke/warehouse-management-system/internal/api/proto/wms/v1;wms";
+option go_package = "github.com/n1jke/warehouse-management-system/internal/api/proto/wms/v1;wms";
 
 import "google/protobuf/timestamp.proto";
 
 // user service api
-
 service UserService {
-  rpc RegisterUser(RegisterUserRequest)  returns (UserResponse);
-  rpc GetUser(GetUserRequest)  returns (UserResponse);
+  rpc RegisterUser(RegisterUserRequest) returns (UserResponse);
+  rpc GetUser(GetUserRequest) returns (UserResponse);
 }
 
 message RegisterUserRequest {
@@ -23,19 +22,18 @@ message GetUserRequest {
 }
 
 message UserResponse {
-  int64  id              = 1;
+  int64  id               = 1;
   int64  telegram_chat_id = 2;
-  string name            = 3;
+  string name             = 3;
 }
 
 // order service api
-
 service OrderService {
   rpc CreateOrder(CreateOrderRequest) returns (OrderResponse);
-  rpc GetOrder(GetOrderRequest)       returns (OrderResponse);
+  rpc GetOrder(GetOrderRequest) returns (OrderResponse);
   rpc UpdateOrder(UpdateOrderRequest) returns (OrderResponse);
   rpc DeleteOrder(DeleteOrderRequest) returns (DeleteOrderResponse);
-  rpc ListOrders(ListOrdersRequest)   returns (ListOrdersResponse);
+  rpc ListOrders(ListOrdersRequest) returns (ListOrdersResponse);
 }
 
 message OrderItem {
@@ -44,64 +42,85 @@ message OrderItem {
 }
 
 message CreateOrderRequest {
-  int64             user_id = 1;
-  repeated OrderItem items  = 2;
-}
-
-message GetOrderRequest {
-  UUID order_id = 1;
-}
-
-message UpdateOrderRequest {
-  UUID             order_id = 1;
+  int64              user_id = 1;
   repeated OrderItem items   = 2;
 }
 
+message GetOrderRequest {
+  string order_id = 1; 
+}
+
+message UpdateOrderRequest {
+  string             order_id = 1;
+  repeated OrderItem items    = 2;
+}
+
 message DeleteOrderRequest {
-  UUID order_id = 1;
+  string order_id = 1;
 }
 
 message DeleteOrderResponse {
-  UUID order_id = 1;
+  string order_id = 1;
 }
 
 message ListOrdersRequest {
-  int64  user_id    = 1;   
-  string status     = 2;     
+  int64  user_id    = 1;
+  string status     = 2;
+  int32  page_size  = 3;
   string page_token = 4;
-  int32  page_size  = 3; 
 }
 
 message ListOrdersResponse {
-  repeated OrderResponse orders         = 1;
-  string                 next_page_token = 2;
+  repeated OrderResponse orders          = 1;
+  string                  next_page_token = 2;
 }
 
 message OrderResponse {
-  UUID                    order_id   = 1;
-  int64                    user_id    = 2;
-  string                   status     = 3;
-  repeated OrderItem       items      = 4;
+  string                    order_id   = 1;
+  int64                     user_id    = 2;
+  string                    status     = 3;
+  repeated OrderItem        items      = 4;
   google.protobuf.Timestamp created_at = 5;
   google.protobuf.Timestamp updated_at = 6;
 }
 
 // wave service api
-
 service WaveService {
-  rpc GetWave(GetWaveRequest)   returns (WaveResponse);
+  rpc GetWave(GetWaveRequest) returns (WaveResponse);
   rpc ListWaves(ListWavesRequest) returns (ListWavesResponse);
+  rpc CreateWave(CreateWaveRequest) returns (WaveResponse);
+  rpc AddOrderToWave(AddOrderToWaveRequest) returns (WaveResponse);
+  rpc CloseWave(CloseWaveRequest) returns (WaveResponse);
+  rpc CompleteWave(CompleteWaveRequest) returns (WaveResponse);
 }
 
 message GetWaveRequest {
-  int64 wave_id = 1;
+  string wave_id = 1;
+}
+
+message CreateWaveRequest {
+  int32 max_orders = 1;
+}
+
+message AddOrderToWaveRequest {
+  string wave_id  = 1;
+  string order_id = 2;
+}
+
+message CloseWaveRequest {
+  string wave_id = 1;
+}
+
+message CompleteWaveRequest {
+  string wave_id = 1;
 }
 
 message WaveResponse {
-  int64             wave_id    = 1;
-  string            status     = 2;
-  repeated UUID    order_ids  = 3;
+  string                    wave_id    = 1;
+  string                    status     = 2;
+  repeated string           order_ids  = 3; 
   google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp closed_at  = 5;
 }
 
 message ListWavesRequest {
@@ -111,13 +130,6 @@ message ListWavesRequest {
 }
 
 message ListWavesResponse {
-  repeated WaveResponse waves          = 1;
-  string                next_page_token = 2;
-}
-
-// uuid.uuid
-
-message UUID {
-  string value = 1;
-  string order_id = 1 [(buf.validate.field).string.uuid = true];  // todo
+  repeated WaveResponse waves           = 1;
+  string                  next_page_token = 2;
 }
