@@ -13,18 +13,16 @@ service UserService {
 }
 
 message RegisterUserRequest {
-  int64  telegram_chat_id = 1;
-  string name             = 2;
+  int64  chat_id = 1;
 }
 
 message GetUserRequest {
-  int64 telegram_chat_id = 1;
+  int64 chat_id = 1;
 }
 
 message UserResponse {
-  int64  id               = 1;
-  int64  telegram_chat_id = 2;
-  string name             = 3;
+  int64  id      = 1;
+  int64  chat_id = 2;
 }
 
 // order service api
@@ -38,16 +36,16 @@ service OrderService {
 
 message OrderItem {
   string sku      = 1;
-  int32  quantity = 2;
+  int64  quantity = 2;
 }
 
 message CreateOrderRequest {
-  int64              user_id = 1;
+  int64              chat_id = 1;
   repeated OrderItem items   = 2;
 }
 
 message GetOrderRequest {
-  string order_id = 1; 
+  string order_id = 1;
 }
 
 message UpdateOrderRequest {
@@ -64,9 +62,9 @@ message DeleteOrderResponse {
 }
 
 message ListOrdersRequest {
-  int64  user_id    = 1;
+  int64  chat_id    = 1;
   string status     = 2;
-  int32  page_size  = 3;
+  int64  page_size  = 3;
   string page_token = 4;
 }
 
@@ -77,7 +75,7 @@ message ListOrdersResponse {
 
 message OrderResponse {
   string                    order_id   = 1;
-  int64                     user_id    = 2;
+  int64                     chat_id    = 2;
   string                    status     = 3;
   repeated OrderItem        items      = 4;
   google.protobuf.Timestamp created_at = 5;
@@ -89,7 +87,6 @@ service WaveService {
   rpc GetWave(GetWaveRequest) returns (WaveResponse);
   rpc ListWaves(ListWavesRequest) returns (ListWavesResponse);
   rpc CreateWave(CreateWaveRequest) returns (WaveResponse);
-  rpc AddOrderToWave(AddOrderToWaveRequest) returns (WaveResponse);
   rpc CloseWave(CloseWaveRequest) returns (WaveResponse);
   rpc CompleteWave(CompleteWaveRequest) returns (WaveResponse);
 }
@@ -99,12 +96,7 @@ message GetWaveRequest {
 }
 
 message CreateWaveRequest {
-  int32 max_orders = 1;
-}
-
-message AddOrderToWaveRequest {
-  string wave_id  = 1;
-  string order_id = 2;
+  int64 max_orders = 1;
 }
 
 message CloseWaveRequest {
@@ -118,18 +110,18 @@ message CompleteWaveRequest {
 message WaveResponse {
   string                    wave_id    = 1;
   string                    status     = 2;
-  repeated string           order_ids  = 3; 
+  repeated string           order_ids  = 3;
   google.protobuf.Timestamp created_at = 4;
   google.protobuf.Timestamp closed_at  = 5;
 }
 
 message ListWavesRequest {
-  string status    = 1;
-  int32  page_size = 2;
+  string status     = 1;
+  int64  page_size  = 2;
   string page_token = 3;
 }
 
 message ListWavesResponse {
   repeated WaveResponse waves           = 1;
-  string                  next_page_token = 2;
+  string                 next_page_token = 2;
 }

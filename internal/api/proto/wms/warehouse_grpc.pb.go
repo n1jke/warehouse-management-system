@@ -421,12 +421,11 @@ var OrderService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	WaveService_GetWave_FullMethodName        = "/warehouse.v1.WaveService/GetWave"
-	WaveService_ListWaves_FullMethodName      = "/warehouse.v1.WaveService/ListWaves"
-	WaveService_CreateWave_FullMethodName     = "/warehouse.v1.WaveService/CreateWave"
-	WaveService_AddOrderToWave_FullMethodName = "/warehouse.v1.WaveService/AddOrderToWave"
-	WaveService_CloseWave_FullMethodName      = "/warehouse.v1.WaveService/CloseWave"
-	WaveService_CompleteWave_FullMethodName   = "/warehouse.v1.WaveService/CompleteWave"
+	WaveService_GetWave_FullMethodName      = "/warehouse.v1.WaveService/GetWave"
+	WaveService_ListWaves_FullMethodName    = "/warehouse.v1.WaveService/ListWaves"
+	WaveService_CreateWave_FullMethodName   = "/warehouse.v1.WaveService/CreateWave"
+	WaveService_CloseWave_FullMethodName    = "/warehouse.v1.WaveService/CloseWave"
+	WaveService_CompleteWave_FullMethodName = "/warehouse.v1.WaveService/CompleteWave"
 )
 
 // WaveServiceClient is the client API for WaveService service.
@@ -438,7 +437,6 @@ type WaveServiceClient interface {
 	GetWave(ctx context.Context, in *GetWaveRequest, opts ...grpc.CallOption) (*WaveResponse, error)
 	ListWaves(ctx context.Context, in *ListWavesRequest, opts ...grpc.CallOption) (*ListWavesResponse, error)
 	CreateWave(ctx context.Context, in *CreateWaveRequest, opts ...grpc.CallOption) (*WaveResponse, error)
-	AddOrderToWave(ctx context.Context, in *AddOrderToWaveRequest, opts ...grpc.CallOption) (*WaveResponse, error)
 	CloseWave(ctx context.Context, in *CloseWaveRequest, opts ...grpc.CallOption) (*WaveResponse, error)
 	CompleteWave(ctx context.Context, in *CompleteWaveRequest, opts ...grpc.CallOption) (*WaveResponse, error)
 }
@@ -481,16 +479,6 @@ func (c *waveServiceClient) CreateWave(ctx context.Context, in *CreateWaveReques
 	return out, nil
 }
 
-func (c *waveServiceClient) AddOrderToWave(ctx context.Context, in *AddOrderToWaveRequest, opts ...grpc.CallOption) (*WaveResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(WaveResponse)
-	err := c.cc.Invoke(ctx, WaveService_AddOrderToWave_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *waveServiceClient) CloseWave(ctx context.Context, in *CloseWaveRequest, opts ...grpc.CallOption) (*WaveResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(WaveResponse)
@@ -520,7 +508,6 @@ type WaveServiceServer interface {
 	GetWave(context.Context, *GetWaveRequest) (*WaveResponse, error)
 	ListWaves(context.Context, *ListWavesRequest) (*ListWavesResponse, error)
 	CreateWave(context.Context, *CreateWaveRequest) (*WaveResponse, error)
-	AddOrderToWave(context.Context, *AddOrderToWaveRequest) (*WaveResponse, error)
 	CloseWave(context.Context, *CloseWaveRequest) (*WaveResponse, error)
 	CompleteWave(context.Context, *CompleteWaveRequest) (*WaveResponse, error)
 	mustEmbedUnimplementedWaveServiceServer()
@@ -541,9 +528,6 @@ func (UnimplementedWaveServiceServer) ListWaves(context.Context, *ListWavesReque
 }
 func (UnimplementedWaveServiceServer) CreateWave(context.Context, *CreateWaveRequest) (*WaveResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateWave not implemented")
-}
-func (UnimplementedWaveServiceServer) AddOrderToWave(context.Context, *AddOrderToWaveRequest) (*WaveResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method AddOrderToWave not implemented")
 }
 func (UnimplementedWaveServiceServer) CloseWave(context.Context, *CloseWaveRequest) (*WaveResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CloseWave not implemented")
@@ -626,24 +610,6 @@ func _WaveService_CreateWave_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _WaveService_AddOrderToWave_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddOrderToWaveRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(WaveServiceServer).AddOrderToWave(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: WaveService_AddOrderToWave_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WaveServiceServer).AddOrderToWave(ctx, req.(*AddOrderToWaveRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _WaveService_CloseWave_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CloseWaveRequest)
 	if err := dec(in); err != nil {
@@ -698,10 +664,6 @@ var WaveService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateWave",
 			Handler:    _WaveService_CreateWave_Handler,
-		},
-		{
-			MethodName: "AddOrderToWave",
-			Handler:    _WaveService_AddOrderToWave_Handler,
 		},
 		{
 			MethodName: "CloseWave",
