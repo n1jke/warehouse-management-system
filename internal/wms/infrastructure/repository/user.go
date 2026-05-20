@@ -54,6 +54,7 @@ func (r *UserRepo) Add(ctx context.Context, user *domain.User) error {
 		}
 
 		r.logger.Error("add user", slog.Any("err", err), slog.Int64("chat_id", user.ID()))
+
 		return fmt.Errorf("add user: %w", err)
 	}
 
@@ -75,6 +76,7 @@ func (r *UserRepo) GetByChatID(ctx context.Context, chatID int64) (*domain.User,
 		}
 
 		r.logger.Error("get user by chat id", slog.Any("err", err), slog.Int64("chat_id", chatID))
+
 		return nil, fmt.Errorf("get user by chatID: %w", err)
 	}
 

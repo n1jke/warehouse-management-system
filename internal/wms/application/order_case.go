@@ -42,16 +42,22 @@ func NewOrderService(logger *slog.Logger, tx Transactor, orderRepo OrderReposito
 	}
 }
 
-func (s *OrderService) CreateOrder(ctx context.Context, chatID int64, items []domain.OrderItem) error {
+func (s *OrderService) CreateOrder(ctx context.Context, chatID int64, items []domain.OrderItem) (*domain.Order, error) {
+	var order *domain.Order
+
 	err := s.tx.WithTransaction(ctx, func(ctx context.Context) error {
-		return s.createOrderTx(ctx, chatID, items)
+		var err error
+
+		order, err = s.createOrderTx(ctx, chatID, items)
+
+		return err
 	})
 	if err != nil {
 		s.logger.Error("create order tx", slog.Int64("chatID", chatID), slog.Any("err", err))
-		return fmt.Errorf("create order tx: %w", err)
+		return nil, fmt.Errorf("create order tx: %w", err)
 	}
 
-	return nil
+	return order, nil
 }
 
 func (s *OrderService) GetOrder(ctx context.Context, orderID uuid.UUID) (*domain.Order, error) {

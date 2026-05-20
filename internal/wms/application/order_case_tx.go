@@ -11,30 +11,30 @@ import (
 	"github.com/n1jke/warehouse-management-system/internal/wms/domain"
 )
 
-func (s *OrderService) createOrderTx(ctx context.Context, chatID int64, items []domain.OrderItem) error {
+func (s *OrderService) createOrderTx(ctx context.Context, chatID int64, items []domain.OrderItem) (*domain.Order, error) {
 	order, err := domain.NewOrder(chatID, items)
 	if err != nil {
 		s.logger.Error("create order", slog.Int64("chatID", chatID), slog.Any("err", err))
-		return fmt.Errorf("create order: %w", err)
+		return nil, fmt.Errorf("create order: %w", err)
 	}
 
 	if err := s.orderRepo.Add(ctx, order); err != nil {
 		s.logger.Error("add order to repo", slog.Int64("chatID", chatID), slog.Any("err", err))
-		return fmt.Errorf("add order to repo: %w", err)
+		return nil, fmt.Errorf("add order to repo: %w", err)
 	}
 
 	event, err := NewOrderEvent(EventOrderCreated, order)
 	if err != nil {
 		s.logger.Error("create order event", slog.Int64("chatID", chatID), slog.Any("err", err))
-		return fmt.Errorf("create order event: %w", err)
+		return nil, fmt.Errorf("create order event: %w", err)
 	}
 
 	if err := s.publisher.Publish(ctx, event); err != nil {
 		s.logger.Error("publish order created event", slog.Int64("chatID", chatID), slog.Any("err", err))
-		return fmt.Errorf("publish order created event: %w", err)
+		return nil, fmt.Errorf("publish order created event: %w", err)
 	}
 
-	return nil
+	return order, nil
 }
 
 func (s *OrderService) updateOrderTx(ctx context.Context, orderID uuid.UUID, items []domain.OrderItem) error {
