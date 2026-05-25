@@ -7,6 +7,7 @@ import (
 type AppConfig struct {
 	DB        DatabaseConfig
 	Scheduler SchedulerConfig
+	GRPC      GRPCConfig
 }
 
 func (c *AppConfig) Validate() error {

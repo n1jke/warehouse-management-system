@@ -268,7 +268,8 @@ func mapErrors(err error) error {
 	switch {
 	case errors.Is(err, application.ErrAlreadyExists):
 		return status.Error(codes.AlreadyExists, err.Error())
-	case errors.Is(err, application.ErrOrderNotFound), errors.Is(err, application.ErrWaveNotFound), errors.Is(err, application.ErrChatNotFound):
+	case errors.Is(err, application.ErrOrderNotFound), errors.Is(err, application.ErrWaveNotFound),
+		errors.Is(err, application.ErrChatNotFound):
 		return status.Error(codes.NotFound, err.Error())
 	case errors.Is(err, application.ErrOrderCannotBeUpdated), errors.Is(err, application.ErrOrderCannotBeCancelled):
 		return status.Error(codes.FailedPrecondition, err.Error())
