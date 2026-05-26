@@ -10,6 +10,10 @@ type DatabaseConfig struct {
 	Name     string `env:"DB_NAME,required,notEmpty"`
 }
 
+func ProvideDatabaseConfig(cfg *AppConfig) *DatabaseConfig {
+	return &cfg.DB
+}
+
 func (d *DatabaseConfig) ConnectionString() string {
 	return fmt.Sprintf("postgresql://%s:%s@%s:%d/%s?target_session_attrs=read-write&sslmode=disable",
 		d.Username,

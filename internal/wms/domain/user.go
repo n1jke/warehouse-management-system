@@ -18,6 +18,14 @@ func NewUser(chatID int64) *User {
 	}
 }
 
+func UserFromExist(id int64, createdAt, updatedAt time.Time) *User {
+	return &User{
+		id:        id,
+		createdAt: createdAt,
+		updatedAt: updatedAt,
+	}
+}
+
 func (u *User) ID() int64 {
 	return u.id
 }

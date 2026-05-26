@@ -41,6 +41,7 @@ var Module = fx.Module(
 	fx.Invoke(RegisterLifecycle),
 )
 
+// todo: work with config & separate from config/
 func ProvidePool(cfg *config.AppConfig) (*pgxpool.Pool, error) {
 	connConfig, err := pgxpool.ParseConfig(cfg.DB.ConnectionString())
 	if err != nil {

@@ -82,6 +82,8 @@ func (w *Wave) ClosedAt() *time.Time { return w.closedAt }
 
 func (w *Wave) Orders() []uuid.UUID { return slices.Clone(w.orders) }
 
+func (w *Wave) OrdersCount() int { return len(w.orders) }
+
 func (w *Wave) IsFull() bool { return len(w.orders) >= w.maxOrders }
 
 func (w *Wave) Close() error {

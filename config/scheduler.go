@@ -3,6 +3,8 @@ package config
 import (
 	"errors"
 	"time"
+
+	"github.com/n1jke/warehouse-management-system/internal/wms/infrastructure/scheduler"
 )
 
 type SchedulerConfig struct {
@@ -12,6 +14,21 @@ type SchedulerConfig struct {
 	WaveMaxOrders   int           `env:"SCHEDULER_WAVE_MAX_ORDERS"  envDefault:"50"`
 	CleanupInterval time.Duration `env:"SCHEDULER_CLEANUP_INTERVAL" envDefault:"1h"`
 	CleanupGap      time.Duration `env:"SCHEDULER_CLEANUP_GAP"     envDefault:"168h"`
+}
+
+func ProvideSchedulerConfig(cfg *AppConfig) *SchedulerConfig {
+	return &cfg.Scheduler
+}
+
+func ToSchedulerConfig(cfg *SchedulerConfig) scheduler.Config {
+	return scheduler.Config{
+		BatchSize:       cfg.BatchSize,
+		WaveMaxOrders:   cfg.WaveMaxOrders,
+		OutboxInterval:  cfg.OutboxInterval,
+		WaveInterval:    cfg.WaveInterval,
+		CleanupInterval: cfg.CleanupInterval,
+		CleanupGap:      cfg.CleanupGap,
+	}
 }
 
 func (c *SchedulerConfig) Validate() error {

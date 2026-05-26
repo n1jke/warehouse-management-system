@@ -3,6 +3,8 @@ package config
 import (
 	"fmt"
 	"time"
+
+	infra_grpc "github.com/n1jke/warehouse-management-system/internal/wms/infrastructure/grpc"
 )
 
 type GRPCConfig struct {
@@ -18,6 +20,22 @@ type GRPCConfig struct {
 
 func (c *GRPCConfig) Addr() string {
 	return fmt.Sprintf("%s:%d", c.Host, c.Port)
+}
+
+func ProvideGRPCConfig(cfg *AppConfig) *GRPCConfig {
+	return &cfg.GRPC
+}
+
+func ToGRPCConfig(cfg *GRPCConfig) infra_grpc.Config {
+	return infra_grpc.Config{
+		Addr:            cfg.Addr(),
+		ShutdownTimeout: cfg.ShutdownTimeout,
+		MaxConnIdle:     cfg.MaxConnIdle,
+		MaxConnAge:      cfg.MaxConnAge,
+		KeepAlive:       cfg.KeepAlive,
+		RPS:             cfg.RPS,
+		Burst:           cfg.Burst,
+	}
 }
 
 func (c *GRPCConfig) Validate() error {

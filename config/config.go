@@ -7,11 +7,16 @@ import (
 type AppConfig struct {
 	DB        DatabaseConfig
 	Scheduler SchedulerConfig
+	Kafka     KafkaConfig
 	GRPC      GRPCConfig
 }
 
 func (c *AppConfig) Validate() error {
 	if err := c.Scheduler.Validate(); err != nil {
+		return err
+	}
+
+	if err := c.Kafka.Validate(); err != nil {
 		return err
 	}
 
