@@ -1,6 +1,6 @@
 COVERAGE_FILE ?= coverage.out
 
-TARGET_PKG ?= cmd/app
+TARGET_PKG ?= cmd/management/app
 BINARY_NAME ?= app
 WORK_DIR ?= ## keep the default value as current directory if not set
 override WORK_DIR := $(or $(strip $(WORK_DIR)),.)

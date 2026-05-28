@@ -22,8 +22,8 @@ func ProvideKafkaConfig(cfg *AppConfig) *KafkaConfig {
 	return &cfg.Kafka
 }
 
-func ToKafkaConfig(cfg *KafkaConfig) kafka.Config {
-	return kafka.Config{
+func ToKafkaConfig(cfg *KafkaConfig) *kafka.Config {
+	return &kafka.Config{
 		Brokers:           cfg.Brokers,
 		Topic:             cfg.Topic,
 		Attempts:          cfg.Attempts,

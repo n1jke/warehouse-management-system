@@ -17,6 +17,10 @@ var Module = fx.Module(
 	fx.Provide(
 		ProvidePool,
 		fx.Annotate(
+			NewTxChain,
+			fx.As(new(application.Transactor)),
+		),
+		fx.Annotate(
 			NewUserRepo,
 			fx.As(new(application.UserRepository)),
 		),

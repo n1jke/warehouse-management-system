@@ -34,6 +34,7 @@ require (
 require (
 	github.com/caarlos0/env/v11 v11.4.1
 	github.com/go-co-op/gocron/v2 v2.21.2
+	github.com/go-telegram/bot v1.21.0
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.10.0
 	github.com/riferrei/srclient v0.7.4
