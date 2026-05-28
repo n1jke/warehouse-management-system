@@ -19,6 +19,7 @@ var Module = fx.Module(
 		fx.Annotate(
 			NewTxChain,
 			fx.As(new(application.Transactor)),
+			fx.As(new(scheduler.Transactor)),
 		),
 		fx.Annotate(
 			NewUserRepo,

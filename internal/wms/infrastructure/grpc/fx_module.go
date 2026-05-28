@@ -7,6 +7,7 @@ import (
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
+	"google.golang.org/grpc/reflection"
 
 	"github.com/n1jke/warehouse-management-system/internal/api/proto/wms"
 )
@@ -34,6 +35,7 @@ func NewTransport(cfg Config, impl *Server) *RunningServer {
 		wms.RegisterUserServiceServer(s, impl)
 		wms.RegisterOrderServiceServer(s, impl)
 		wms.RegisterWaveServiceServer(s, impl)
+		reflection.Register(s) // grpcurl testing
 	})
 }
 
