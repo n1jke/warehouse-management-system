@@ -1,6 +1,6 @@
 COVERAGE_FILE ?= coverage.out
 
-TARGET_PKG ?= cmd/management/app
+TARGET_PKG ?= cmd/management
 BINARY_NAME ?= app
 WORK_DIR ?= ## keep the default value as current directory if not set
 override WORK_DIR := $(or $(strip $(WORK_DIR)),.)
@@ -28,10 +28,10 @@ test_race:
 	@go tool cover -func='$(WORK_DIR)/$(COVERAGE_FILE)' | grep ^total | tr -s '\t'
 
 .PHONY: html_test
-html_test:
+html_test: test
 	@go tool cover -html='$(WORK_DIR)/$(COVERAGE_FILE)' -o "$(WORK_DIR)/coverage.html"
 	@echo "Coverage report saved to $(WORK_DIR)/coverage.html"
-
+	
 # Lint
 .PHONY: fmt
 fmt:
