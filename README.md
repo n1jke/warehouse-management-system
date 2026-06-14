@@ -95,10 +95,7 @@
 
 ## Тестирование
 
-Подходы к написанию тестов - table-driven tests и Given–When–Then.
-Для проверки условий и результатов используется пакет [testify](https://github.com/stretchr/testify)(подпакеты assert и require).
-
-Используемые инструменты:
+Подходы к написанию тестов - table-driven tests и Given–When–Then, используемые инструменты:
 
 - [testing](https://pkg.go.dev/testing) - std пакет для написания тестов
 - [testify](https://github.com/stretchr/testify) - проверка условий и результатов

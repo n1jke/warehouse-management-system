@@ -12,6 +12,7 @@ var Module = fx.Module(
 		ProvideSchedulerConfig,
 		ProvideDatabaseConfig,
 		ProvideKafkaConfig,
+		ProvideBotConfig,
 		ToSchedulerConfig,
 		ToGRPCConfig,
 		ToKafkaConfig,

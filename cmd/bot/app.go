@@ -8,6 +8,7 @@ import (
 	"go.uber.org/fx/fxevent"
 
 	"github.com/n1jke/warehouse-management-system/config"
+	botgrpc "github.com/n1jke/warehouse-management-system/internal/bot/infrastructure/grpc"
 )
 
 func NewApp() fx.Option {
@@ -17,6 +18,7 @@ func NewApp() fx.Option {
 			return &fxevent.SlogLogger{Logger: log}
 		}),
 		config.Module,
+		botgrpc.Module,
 	)
 }
 

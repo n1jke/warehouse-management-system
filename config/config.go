@@ -9,6 +9,7 @@ type AppConfig struct {
 	Scheduler SchedulerConfig
 	Kafka     KafkaConfig
 	GRPC      GRPCConfig
+	Bot       BotConfig
 }
 
 func (c *AppConfig) Validate() error {
