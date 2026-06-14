@@ -23,7 +23,7 @@ type cursorPayload struct {
 	LastID        string    `json:"id"`
 }
 
-func encodeCursor(c Cursor) (string, error) {
+func EncodeCursor(c Cursor) (string, error) {
 	b, err := json.Marshal(cursorPayload{
 		LastCreatedAt: c.LastCreatedAt,
 		LastID:        c.LastID.String(),
@@ -35,7 +35,7 @@ func encodeCursor(c Cursor) (string, error) {
 	return base64.StdEncoding.EncodeToString(b), nil
 }
 
-func decodeCursor(token string) (Cursor, error) {
+func DecodeCursor(token string) (Cursor, error) {
 	if token == "" {
 		return Cursor{}, nil
 	}

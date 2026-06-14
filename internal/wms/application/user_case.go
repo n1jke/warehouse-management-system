@@ -42,7 +42,7 @@ func (s *UserService) RegisterUser(ctx context.Context, chatID int64) (*domain.U
 func (s *UserService) GetUser(ctx context.Context, chatID int64) (*domain.User, error) {
 	user, err := s.userRepo.GetByChatID(ctx, chatID)
 	if err != nil {
-		if errors.Is(err, ErrChatNotFound) {
+		if errors.Is(err, ErrNotFound) {
 			return nil, ErrChatNotFound
 		}
 

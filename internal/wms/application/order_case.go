@@ -103,7 +103,7 @@ func (s *OrderService) ListOrders(ctx context.Context, input ListOrdersInput) (L
 	s.logger.Info("list orders start", slog.Int64("user_id", input.UserID),
 		slog.Any("status", input.Status), slog.Int("page_size", input.PageSize))
 
-	cursor, err := decodeCursor(input.PageToken)
+	cursor, err := DecodeCursor(input.PageToken)
 	if err != nil {
 		return ListOrdersOutput{}, fmt.Errorf("decode cursor: %w", err)
 	}
@@ -123,7 +123,7 @@ func (s *OrderService) ListOrders(ctx context.Context, input ListOrdersInput) (L
 
 		last := orders[len(orders)-1]
 
-		token, err := encodeCursor(Cursor{
+		token, err := EncodeCursor(Cursor{
 			LastCreatedAt: last.CreatedAt(),
 			LastID:        last.ID(),
 		})

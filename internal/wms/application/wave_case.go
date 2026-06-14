@@ -56,14 +56,14 @@ func (s *WaveService) GetWave(ctx context.Context, waveID uuid.UUID) (*domain.Wa
 func (s *WaveService) ListWaves(ctx context.Context, input ListWavesInput) (*ListWavesOutput, error) {
 	s.logger.Info("list waves start", slog.Any("status", input.Status), slog.Int("page_size", input.PageSize))
 
-	cursor, err := decodeCursor(input.PageToken)
+	cursor, err := DecodeCursor(input.PageToken)
 	if err != nil {
 		return nil, fmt.Errorf("decode cursor: %w", err)
 	}
 
 	limit := input.PageSize
 
-	waves, err := s.fetchWaves(ctx, input, limit, cursor)
+	waves, err := s.fetchWaves(ctx, input, limit+1, cursor)
 	if err != nil {
 		s.logger.Error("list waves fetch", slog.Any("err", err))
 		return nil, fmt.Errorf("list waves: %w", err)
@@ -76,7 +76,7 @@ func (s *WaveService) ListWaves(ctx context.Context, input ListWavesInput) (*Lis
 
 		last := waves[len(waves)-1]
 
-		token, err := encodeCursor(Cursor{
+		token, err := EncodeCursor(Cursor{
 			LastCreatedAt: last.CreatedAt(),
 			LastID:        last.ID(),
 		})
