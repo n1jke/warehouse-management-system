@@ -1,0 +1,76 @@
+@startuml wms-application
+skinparam packageStyle rect
+
+package "Use Cases" {
+    class OrderService {
+        + CreateOrder(ctx, chatID, items) (Order, error)
+        + GetOrder(ctx, orderID) (Order, error)
+        + UpdateOrder(ctx, orderID, items) (Order, error)
+        + DeleteOrder(ctx, orderID) error
+        + ListOrders(ctx, input) (Order[], string, error)
+    }
+
+    class UserService {
+        + RegisterUser(ctx, chatID) (User, error)
+        + GetUser(ctx, chatID) (User, error)
+    }
+
+    class WaveService {
+        + CreateWave(ctx, maxOrders) (Wave, error)
+        + GetWave(ctx, waveID) (Wave, error)
+        + ListWaves(ctx, input) (Wave[], string, error)
+        + CloseWave(ctx, waveID) (Wave, error)
+        + CompleteWave(ctx, waveID) (Wave, error)
+    }
+}
+
+package "Ports (Interfaces)" {
+    interface OrderRepository <<interface>> {
+        + Add(ctx, order) error
+        + GetByID(ctx, id) (Order, error)
+        + GetByUserID(ctx, userID, cursor) (Order[], error)
+        + GetByStatus(ctx, status, cursor) (Order[], error)
+        + GetByStatusAndUserID(ctx, status, userID, cursor) (Order[], error)
+        + Update(ctx, order) error
+        + UpdateStatusBatch(ctx, ids, status) error
+        + Delete(ctx, id) error
+    }
+
+    interface StockRepository <<interface>> {
+        + GetBySKUs(ctx, skus) (Stock[], error)
+        + Update(ctx, stock) error
+    }
+
+    interface WaveRepository <<interface>> {
+        + Add(ctx, wave) error
+        + GetByID(ctx, id) (Wave, error)
+        + GetByStatus(ctx, status, cursor) (Wave[], error)
+        + Update(ctx, wave) error
+    }
+
+    interface UserRepository <<interface>> {
+        + Add(ctx, user) error
+        + GetByChatID(ctx, chatID) (User, error)
+    }
+
+    interface Transactor <<interface>> {
+        + WithTransaction(ctx, fn) error
+    }
+
+    interface EventPublisher <<interface>> {
+        + Publish(ctx, event) error
+    }
+}
+
+OrderService ..> OrderRepository : uses
+OrderService ..> StockRepository : uses
+OrderService ..> Transactor : uses
+OrderService ..> EventPublisher : uses
+
+UserService ..> UserRepository : uses
+
+WaveService ..> WaveRepository : uses
+WaveService ..> OrderRepository : uses
+WaveService ..> Transactor : uses
+
+@enduml

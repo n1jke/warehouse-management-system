@@ -4,9 +4,10 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/n1jke/warehouse-management-system/config"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
+
+	"github.com/n1jke/warehouse-management-system/config"
 )
 
 func NewApp() fx.Option {
