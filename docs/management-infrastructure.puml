@@ -1,0 +1,87 @@
+@startuml wms-infra
+
+package "repository (PostgreSQL)" {
+    class OrderRepo {
+        + Add(ctx, order) error
+        + GetByID(ctx, id) (Order, error)
+        + GetByUserID(ctx, userID, cursor) (Order[], error)
+        + GetByStatus(ctx, status, cursor) (Order[], error)
+        + GetByStatusAndUserID(ctx, status, userID, cursor) (Order[], error)
+        + Update(ctx, order) error
+        + UpdateStatusBatch(ctx, ids, status) error
+        + Delete(ctx, id) error
+    }
+    class StockRepo {
+        + GetBySKUs(ctx, skus) (Stock[], error)
+        + Update(ctx, stock) error
+    }
+    class WaveRepo {
+        + Add(ctx, wave) error
+        + GetByID(ctx, id) (Wave, error)
+        + GetByStatus(ctx, status, cursor) (Wave[], error)
+        + Update(ctx, wave) error
+    }
+    class UserRepo {
+        + Add(ctx, user) error
+        + GetByChatID(ctx, chatID) (User, error)
+    }
+    class OutboxRepo {
+        + Publish(ctx, event) error
+        + FetchPending(ctx, limit) (OutboxRecord[], error)
+        + MarkProcessed(ctx, ids) error
+        + Cleanup(ctx, before) error
+    }
+    class TxChain {
+        + WithTransaction(ctx, fn) error
+    }
+}
+
+package "kafka (Avro + Schema Registry)" {
+    class Producer {
+        + Publish(ctx, msg) error
+    }
+}
+
+package "grpc (protobuf)" {
+    class GrpcServer {
+        + Register(service, impl)
+        + Serve() error
+        + GracefulStop()
+    }
+}
+
+package "scheduler (gocron v2)" {
+    class Sentinel {
+        + Start() error
+        + Shutdown() error
+    }
+    class Jobs {
+        + OutboxRelay(ctx) error
+        + WavePlanner(ctx) error
+        + Cleanup(ctx) error
+    }
+}
+
+package "Ports" {
+    interface OrderRepositoryIF <<interface>>
+    interface StockRepositoryIF <<interface>>
+    interface WaveRepositoryIF <<interface>>
+    interface UserRepositoryIF <<interface>>
+    interface TransactorIF <<interface>>
+    interface EventPublisherIF <<interface>>
+    interface SchedOutboxRepoIF <<interface>>
+    interface SchedProducerIF <<interface>>
+    interface SchedTransactorIF <<interface>>
+}
+
+OrderRepo --|> OrderRepositoryIF : implements
+StockRepo --|> StockRepositoryIF : implements
+WaveRepo --|> WaveRepositoryIF : implements
+UserRepo --|> UserRepositoryIF : implements
+OutboxRepo --|> EventPublisherIF : implements
+OutboxRepo --|> SchedOutboxRepoIF : implements
+TxChain --|> TransactorIF : implements
+TxChain --|> SchedTransactorIF : implements
+Producer --|> SchedProducerIF : implements
+
+@enduml

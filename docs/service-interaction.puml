@@ -1,0 +1,51 @@
+@startuml soa
+!theme plain
+skinparam backgroundColor white
+skinparam componentStyle rectangle
+
+actor "User" as User
+
+package "Bot Service" as Bot {
+    component "gRPC Client" as BotGrpc
+    component "Bot" as BotApp
+    component "Retry" as Retry
+    BotApp --> BotGrpc : calls
+    BotApp --> Retry : uses
+}
+
+package "Management Service (WMS)" as WMS {
+    component "gRPC Server" as WmsGrpc
+    component "Application Layer\n(OrderService, UserService,\nWaveService)" as AppLayer
+    component "Scheduler\n(OutboxRelay, WavePlanner)" as Sched
+    component "Kafka Producer\n(Avro + Schema Registry)" as KafkaProd
+    component "Repositories\n(OrderRepo, StockRepo,\nWaveRepo, UserRepo)" as Repos
+
+    WmsGrpc --> AppLayer 
+    AppLayer --> Repos 
+    Sched --> Repos 
+    Sched --> KafkaProd 
+}
+
+database "PostgreSQL" as PG {
+    frame "orders" as Orders
+    frame "outbox" as Outbox
+    frame "stocks, waves,\nusers" as Other
+}
+
+queue "Apache Kafka" as Kafka {
+    frame "order-events" as Topic
+    frame "order-events-dlq" as Dlq
+}
+
+cloud "Schema Registry" as SR
+
+User --> BotApp : Telegram API
+BotGrpc <--> WmsGrpc 
+Repos --> Orders
+Repos --> Other
+AppLayer --> Outbox : writes event\n(in same transaction)
+Sched --> Outbox 
+KafkaProd --> Topic 
+KafkaProd <--> SR : register / fetch schema
+
+@enduml

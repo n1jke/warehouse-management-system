@@ -1,0 +1,37 @@
+{
+  "type": "record",
+  "name": "OrderEvent",
+  "namespace": "com.warehouse",
+  "fields": [
+    {
+      "name": "event_id",
+      "type": "string",
+      "doc": "UUID v7"
+    },
+    {
+      "name": "event_type",
+      "type": "string",
+      "doc": "order-created | order-cancelled | order-reserved | order-partially_reserved | order-in_wave | order-shipped"
+    },
+    {
+      "name": "order_id",
+      "type": "string",
+      "doc": "UUID v7"
+    },
+    {
+      "name": "user_id",
+      "type": "long",
+      "doc": "Telegram chat ID"
+    },
+    {
+      "name": "status",
+      "type": "string",
+      "doc": "new | reserving | reserved | partially_reserved | in_wave | shipped | cancelled"
+    },
+    {
+      "name": "occurred_at",
+      "type": "long",
+      "doc": "Unix timestamp in milliseconds"
+    }
+  ]
+}

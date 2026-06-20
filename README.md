@@ -1,65 +1,136 @@
-## 1. Что мы хотим от системы
-- прием заказов
-- резервирование остатков
-- волновая обработка сборки заказов
-- назначение и выполнение задач сборки
-- асинхронная обработка запросов
+# Warehouse Management System
 
-## 2. Функциональные требования
-### 2.1 Управление заказами
-- создание заказа с позициями 
-- получение заказа по `id` с текущим статусом, резервами и backorder
-- различные действия в зависимости от состояния заказа(fsm + state)
-   - `new -> reserving -> reserved | partially_reserved  -> in_wave -> packed -> shipped` +-likely
+Система управления заказами. Позволяет создавать и отслеживать заказы, резервировать товары, формировать волны отгрузки.
 
-### 2.2 Резервирование остатков
-- резервирование выполняется транзакционно
-- при нехватке остатков:
-   - доступная часть резервируется
-   - остаток уходит в backorder
+Проект состоит из двух сервисов:
 
-### 2.3 Волновое планирование 
-- планирование/распределение/отгрузки будет происходит волнами
-- алгоритм будет поход на gc
-   - если достигли лимита по текащему кол-ву заказов
-   - текущее_кол-во = n * пред_кол-во
-   - раз в t промежуток времени
-- возможно будет что-то связанное еще с балансировкой по эвристике какой-то
+- **management** — core domain: gRPC API для управления заказами, товарами и волнами
+- **bot** — supporting subdomain: telegram bot для взаимодействия с пользователем
 
-### 2.4 Kafka
-- wave planner worker;
-- TTL release worker.
+![soa](docs/img/soa.png)
 
-## 3. API (черновой контракт, без OpenAPI)
-### 3.1 Order API
-1. `POST /v1/orders` — создать заказ.
-2. `GET /v1/orders/{id}` — получить заказ.
-3. `POST /v1/orders/{id}/cancel` — отменить заказ.
+- [Технологии](#технологии)
+- [Данные](#модель-хранения-данных)
+- [Проблемы и их решения](#проблемы-и-их-решения)  
+- [Архитектура](#архитектура)  
+- [Тестирование](#тестирование)
+- [Мониторинг](#мониторинг)
+- [Использование](#запуск)
 
-### 3.2 Wave/Task API
-1. `GET /v1/waves/{id}` — получить волну.
-2. `POST /v1/tasks/{id}/start` — начать задачу сборки.
-3. `POST /v1/tasks/{id}/complete` — завершить задачу сборки.
+## Технологии
 
-### 3.3 Shipping API
-1. `POST /v1/orders/{id}/ship` — отгрузить заказ.
+- Go 1.26+
+- [gRPC](https://github.com/grpc/grpc-go)
+- [Kafka](https://github.com/segmentio/kafka-go)
+- [PostgreSQL (pgx driver)](https://github.com/jackc/pgx)
+- [Uber FX](https://github.com/uber-go/fx)
+- [gocron](https://github.com/go-co-op/gocron)
+- Docker / Docker Compose
 
-### 3.4 Service API
-1. `GET /v1/healthz` — health check.
+## Модель хранения данных
 
-## 4. Нефункциональные требования
-- общая архитектура -  DDD + Hexagonal/Ports&Adapters
-- работа с бд через транхакции + согласованность
-- at-least-once, retry policy c kafka-
-- структурное логирование + возможно сбор метрик и 'нагрузочное' тестирование для получение персентилей времени ответа
-- контейнеризация 
+### PostgreSQL
 
-## 5. Тестирование и критерии готовности
-### 5.1 Тестирование
-- unit, integrations тесты + использование библиотек и построение правильной архитектуры для удобного тестирования
+![data schema](docs/img/data_layout.png)
 
-### 5.2 Критерии готовности 
-- соответсвие openapi/proto(не решил что тут будет) спецификации
-- система готова согласно техническому заданию
-- система протестирована и имеет хорошее тестовое покрытие
-- написана записка к курсовому проекту
+### Kafka
+
+Топик `order-events` - события изменения статусов заказов.
+Сериализация [Avro Schema](deploy/schemas/order-event-value.json).
+
+## Архитектура
+
+```md
+├── api
+│   └── proto
+├── cmd - входные точки для сервисов, сборка через di контейнеры(uber-fx, fx-modules)
+│   ├── bot
+│   └── management
+├── config - работа с переменными окружения
+├── deploy - docker-compose, dockerfile, поднятие приложения
+│   ├── docker*
+│   ├── schemas
+│   └── scripts
+├── docs - диаграммы и некоторые доп сведения о проекте
+├── internal
+│   ├── api
+│   │   └── proto - сгенерированный код для grpc clinet/server через protoc
+│   │       └── wms 
+│   ├── bot - supporting subdomain service
+│   │   ├── application
+│   │   └── infrastructure
+│   │       ├── grpc
+│   │       ├── kafka
+│   │       └── telegram
+│   └── wms - core domain service
+│       ├── application
+│       ├── domain
+│       └── infrastructure
+│           ├── grpc
+│           ├── kafka
+│           ├── repository
+│           └── scheduler
+├── Makefile
+├── migrations - psql migrations
+├── pkg
+│   └── retry - реализованный retry backoff with jitter
+└── README.md
+```
+
+Подробнее: тут [docs](docs/),  и тут [docs/architecture.md](docs/architecture.md)
+
+## Проблемы и их решения
+
+- **Гарантия доставки событий при изменении агрегата**  
+  Решение: Transactional Outbox — событие пишется в таблицу `outbox` в рамках транзакции, фоновый relay процесс отправляет их в Kafka.
+
+- **Частичное резервирование и backorder при нехватке товаров**  
+  Решение: атомарные операции резервирования с учётом доступного остатка и создание backorder для заказа.
+
+- **Масштабируемая пагинация больших наборов данных**  
+  Решение: Cursor-based pagination по `(created_at, id)` вместо смещения `offset + limit`.
+
+- **Управление состояниями заказа и корректные переходы**  
+  Решение: OrderFSM — конечный автомат с таблицей переходов и guard моделью.
+
+## Тестирование
+
+Подходы к написанию тестов - table-driven tests и Given–When–Then, используемые инструменты:
+
+- [testing](https://pkg.go.dev/testing) - std пакет для написания тестов
+- [testify](https://github.com/stretchr/testify) - проверка условий и результатов
+- [uber-go/mock](https://github.com/uber-go/mock) - мокогенерация для используемых зависимостей в unit тестах
+
+## Мониторинг
+
+TODO: Prometheus & Grafana, Loki - tbd
+
+## Запуск
+
+- Start in containers:
+
+```bash
+cd deploy
+cp .env.example .env
+docker compose up -d --build
+```
+
+- Testing:
+
+```bash
+// из корня проекта
+make test
+make test-race
+
+make html_test //
+```
+
+- Tools
+
+```bash
+make fmt // go formatter
+
+make lint // golangci-lint
+
+make clean // clean parent dir 
+```

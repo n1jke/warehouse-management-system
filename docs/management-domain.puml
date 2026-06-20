@@ -1,0 +1,91 @@
+@startuml wms-domain
+
+package "Domain Layer" {
+    class Order <<Aggregate Root>> {
+        - id: uuid.UUID
+        - userID: int64
+        - status: OrderStatus
+        - items: OrderItem[]
+        - createdAt: time.Time
+        - updatedAt: time.Time
+        + NewOrder(userID, items) (Order, error)
+        + OrderFromExist(id, userID, status, items, createdAt, updatedAt) Order
+        + TransitionTo(next OrderStatus) error
+        + UpdateItems(items OrderItem[]) error
+        + CanUpdate() bool
+        + CanCancel() bool
+    }
+
+    class OrderItem <<Value Object>> {
+        + SKU: string
+        + Quantity: int
+    }
+
+    enum OrderStatus {
+        new
+        reserving
+        reserved
+        partially_reserved
+        in_wave
+        shipped
+        cancelled
+    }
+
+    class OrderFSM {
+        + IsAllowed(from, to OrderStatus) bool
+        + AllowedTargets(from OrderStatus) OrderStatus[]
+    }
+
+    class Stock <<Aggregate Root>> {
+        - sku: string
+        - totalQuantity: int
+        - reservations: Reservation[]
+        + NewStock(sku, totalQuantity) Stock
+        + Available() int
+        + Reserve(orderID uuid.UUID, requestedQty int) error
+        + Release(orderID uuid.UUID) error
+    }
+
+    class Reservation <<Value Object>> {
+        + OrderID: uuid.UUID
+        + SKU: string
+        + ReservedQty: int
+        + BackorderQty: int
+        + DetermineOrderStatus(reservations Reservation[]) OrderStatus
+    }
+
+    class Wave <<Aggregate Root>> {
+        - id: uuid.UUID
+        - orders: uuid.UUID[]
+        - status: WaveStatus
+        - maxOrders: int
+        - createdAt: time.Time
+        - closedAt: time.Time
+        + NewWave(maxOrders int) Wave
+        + AddOrder(orderID uuid.UUID) error
+        + Close() error
+        + Complete() error
+        + IsFull() bool
+    }
+
+    enum WaveStatus {
+        open
+        in_process
+        completed
+    }
+
+    class User <<Entity>> {
+        - id: int64
+        - createdAt: time.Time
+        - updatedAt: time.Time
+    }
+}
+
+Order "1" *-- "many" OrderItem : contains
+Order --> OrderStatus
+Order ..> OrderFSM : uses
+Stock "1" *-- "many" Reservation : contains
+Wave --> WaveStatus
+Wave "1" o-- "many" Order : references
+
+@enduml
